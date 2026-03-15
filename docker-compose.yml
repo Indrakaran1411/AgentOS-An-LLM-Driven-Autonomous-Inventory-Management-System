@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:15
+    container_name: agentos_db
+    environment:
+      # These now pull from your .env file
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: ./backend
+    container_name: agentos_backend
+    ports:
+      - "8000:8000"
+    # This line is critical! It passes your Groq Key and DB credentials into the container
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
